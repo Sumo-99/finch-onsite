@@ -1,0 +1,15 @@
+# Codex project configuration
+#
+# Add MCP servers under the `mcp_servers` table.
+# Example:
+# [mcp_servers.example]
+# command = "npx"
+# args = ["-y", "@modelcontextprotocol/server-filesystem", "."]
+# env = { EXAMPLE_API_KEY = "replace-me" }
+
+[mcp_servers]
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp"]
+# env = { CONTEXT7_API_KEY = "your_context7_api_key" }
+startup_timeout_sec = 60
