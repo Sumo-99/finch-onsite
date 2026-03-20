@@ -56,6 +56,7 @@ class CaseDataModelTests(TestCase):
         self.assertIsNone(client.email)
         self.assertIsNone(client.phone)
         self.assertIsNone(client.liable)
+        self.assertIsNone(client.liable_reason)
 
     def test_case_supports_multiple_damage_and_coverage_rows(self):
         user_model = self.get_model("User")
@@ -176,6 +177,7 @@ class IntakeExtractionApiTests(APITestCase):
                 "email": "jane@example.com",
                 "phone": "555-0100",
                 "liable": False,
+                "liable_reason": "The other driver ran the red light.",
             },
             "incident": {"type": "Auto accident", "summary": "Rear-end collision."},
             "damages": {
@@ -235,6 +237,7 @@ class IntakeExtractionApiTests(APITestCase):
         self.assertEqual(client.email, "jane@example.com")
         self.assertEqual(client.phone, "555-0100")
         self.assertFalse(client.liable)
+        self.assertEqual(client.liable_reason, "The other driver ran the red light.")
         self.assertTrue(damages.treatment_received)
         self.assertEqual(damages.treatment_type, "Urgent care")
         self.assertEqual(damages.description, "Whiplash symptoms")
@@ -253,7 +256,14 @@ class IntakeExtractionApiTests(APITestCase):
             "transcript": [{"speaker": "Caller", "text": "I was injured."}],
         }
         structured_output = {
-            "client": {"name": "Jane Doe", "age": None, "email": None, "phone": None, "liable": None},
+            "client": {
+                "name": "Jane Doe",
+                "age": None,
+                "email": None,
+                "phone": None,
+                "liable": None,
+                "liable_reason": None,
+            },
             "incident": {"type": "Auto accident", "summary": "Rear-end collision."},
             "damages": {
                 "treatment_received": True,
@@ -283,6 +293,7 @@ class IntakeExtractionApiTests(APITestCase):
         self.assertEqual(user_model.objects.count(), 1)
 
     def test_post_skips_empty_related_rows(self):
+        client_model = self.get_model("Client")
         damages_model = self.get_model("Damages")
         coverage_model = self.get_model("Coverage")
         user = self.create_user()
@@ -292,7 +303,14 @@ class IntakeExtractionApiTests(APITestCase):
             "transcript": [{"speaker": "Caller", "text": "I was injured."}],
         }
         structured_output = {
-            "client": {"name": "Jane Doe", "age": None, "email": None, "phone": None, "liable": None},
+            "client": {
+                "name": "Jane Doe",
+                "age": None,
+                "email": None,
+                "phone": None,
+                "liable": None,
+                "liable_reason": None,
+            },
             "incident": {"type": "Auto accident", "summary": "Rear-end collision."},
             "damages": {
                 "treatment_received": False,
@@ -317,6 +335,7 @@ class IntakeExtractionApiTests(APITestCase):
         self.assertEqual(response.json()["coverage_ids"], [])
         self.assertEqual(damages_model.objects.count(), 0)
         self.assertEqual(coverage_model.objects.count(), 0)
+        self.assertIsNone(client_model.objects.get().liable_reason)
 
     def test_post_rolls_back_records_if_persistence_fails(self):
         user_model = self.get_model("User")
@@ -421,6 +440,7 @@ class CaseReportApiTests(APITestCase):
             email="jane@example.com",
             phone="555-0100",
             liable=False,
+            liable_reason=case_overrides.pop("liable_reason", "The other driver ran the red light."),
         )
         case = case_model.objects.create(
             user=user,
@@ -475,6 +495,7 @@ class CaseReportApiTests(APITestCase):
                     "email": "jane@example.com",
                     "phone": "555-0100",
                     "liable": False,
+                    "liable_reason": "The other driver ran the red light.",
                 },
                 "damages": {
                     "treatment_received": True,
@@ -493,12 +514,13 @@ class CaseReportApiTests(APITestCase):
 
     def test_get_returns_null_blocks_when_related_records_are_missing(self):
         user = self.create_user("owner@example.com")
-        case = self.create_case(user)
+        case = self.create_case(user, liable_reason=None)
 
         self.client.force_authenticate(user=user)
         response = self.client.get(f"/api/cases/{case.id}/report/")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsNone(response.json()["client"]["liable_reason"])
         self.assertIsNone(response.json()["damages"])
         self.assertIsNone(response.json()["coverage"])
 

@@ -28,12 +28,15 @@ Review the provided intake transcript and return only JSON that matches this sha
     "age": integer | null,
     "email": string | null,
     "phone": string | null,
-    "liable": boolean | null
+    "liable": boolean | null,
+    "liable_reason": string | null
     // Infer from the incident description who caused the incident.
     // Set to false if another party clearly caused the harm 
     // (e.g. another driver, a property owner, an employer, an animal owner).
     // Set to true only if the client's own actions caused or contributed to the incident.
     // Set to null only if genuinely cannot be determined from the transcript.
+    // Set liable_reason only when the transcript includes specific facts that directly
+    // support the liable assessment; otherwise set it to null.
   },
   "incident": {
     "type": string | null,
@@ -61,6 +64,7 @@ Extraction rules:
 - Use null when the transcript does not support a field.
 - Use false only for damages.treatment_received when treatment is not stated or is unclear.
 - Keep recommendation.decision conservative. Use REVIEW when the transcript is incomplete or ambiguous.
+- liable_reason must cite specific facts from the transcript to justify the liable determination. Do not write generic statements like 'another party was at fault'. Reference concrete evidence from the call. Example: 'The City of Denver is responsible for maintaining the sidewalk where the incident occurred. The city placed cones three days after the incident, indicating prior awareness of the hazard.'
 - Do not invent specific facts.
 - Return JSON only. No markdown, no prose, no code fences.
 """.strip()
@@ -82,6 +86,7 @@ class ClientExtraction(BaseModel):
     email: str | None = None
     phone: str | None = None
     liable: bool | None = None
+    liable_reason: str | None = None
 
 
 class IncidentExtraction(BaseModel):
@@ -277,6 +282,7 @@ def _normalize_structured_output(raw_output: Any) -> dict[str, Any]:
             "email": _normalize_string(client.get("email")),
             "phone": _normalize_string(client.get("phone")),
             "liable": _normalize_boolean(client.get("liable")),
+            "liable_reason": _normalize_string(client.get("liable_reason")),
         },
         "incident": {
             "type": _normalize_string(incident.get("type")),

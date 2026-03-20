@@ -16,6 +16,7 @@ class CaseReportClientSerializer(serializers.Serializer):
     email = serializers.EmailField(allow_null=True)
     phone = serializers.CharField(allow_null=True)
     liable = serializers.BooleanField(allow_null=True)
+    liable_reason = serializers.CharField(allow_null=True)
 
 
 class CaseReportDamagesSerializer(serializers.Serializer):

@@ -15,6 +15,7 @@ export type CaseReport = {
     email: string | null
     phone: string | null
     liable: boolean | null
+    liable_reason: string | null
   }
   damages: {
     treatment_received: boolean | null

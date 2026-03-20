@@ -11,7 +11,7 @@ function formatText(value: string | number | null | undefined) {
 function CoverageTab({ coverage }: CoverageTabProps) {
   if (coverage === null) {
     return (
-      <section className="text-base leading-7 text-neutral-700">
+      <section className="text-[15px] leading-[1.6] text-[#111111]">
         No coverage information available.
       </section>
     )
@@ -20,37 +20,37 @@ function CoverageTab({ coverage }: CoverageTabProps) {
   return (
     <section className="space-y-4">
       <div>
-        <p className="text-xs font-medium uppercase tracking-[0.24em] text-neutral-500">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#888888]">
           Coverage Type
         </p>
-        <p className="mt-1 text-base text-neutral-950">
+        <p className="mt-1 text-[15px] font-normal text-[#111111]">
           {formatText(coverage.type)}
         </p>
       </div>
 
       <div>
-        <p className="text-xs font-medium uppercase tracking-[0.24em] text-neutral-500">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#888888]">
           Insurer Name
         </p>
-        <p className="mt-1 text-base text-neutral-950">
+        <p className="mt-1 text-[15px] font-normal text-[#111111]">
           {formatText(coverage.insurer_name)}
         </p>
       </div>
 
       <div>
-        <p className="text-xs font-medium uppercase tracking-[0.24em] text-neutral-500">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#888888]">
           Policy Limit
         </p>
-        <p className="mt-1 text-base text-neutral-950">
+        <p className="mt-1 text-[15px] font-normal text-[#111111]">
           {formatText(coverage.policy_limit)}
         </p>
       </div>
 
       <div>
-        <p className="text-xs font-medium uppercase tracking-[0.24em] text-neutral-500">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#888888]">
           Deductible
         </p>
-        <p className="mt-1 text-base text-neutral-950">
+        <p className="mt-1 text-[15px] font-normal text-[#111111]">
           {formatText(coverage.deductible)}
         </p>
       </div>

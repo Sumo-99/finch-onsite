@@ -20,37 +20,37 @@ function DamagesTab({ damages }: DamagesTabProps) {
   return (
     <section className="space-y-4">
       <div>
-        <p className="text-xs font-medium uppercase tracking-[0.24em] text-neutral-500">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#888888]">
           Treatment Received
         </p>
-        <p className="mt-1 text-base text-neutral-950">
+        <p className="mt-1 text-[15px] font-normal text-[#111111]">
           {formatBoolean(damages.treatment_received)}
         </p>
       </div>
 
       <div>
-        <p className="text-xs font-medium uppercase tracking-[0.24em] text-neutral-500">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#888888]">
           Treatment Type
         </p>
-        <p className="mt-1 text-base text-neutral-950">
+        <p className="mt-1 text-[15px] font-normal text-[#111111]">
           {formatText(damages.treatment_type)}
         </p>
       </div>
 
       <div>
-        <p className="text-xs font-medium uppercase tracking-[0.24em] text-neutral-500">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#888888]">
           Description
         </p>
-        <p className="mt-1 text-base text-neutral-950">
+        <p className="mt-1 text-[15px] font-normal text-[#111111]">
           {formatText(damages.description)}
         </p>
       </div>
 
       <div>
-        <p className="text-xs font-medium uppercase tracking-[0.24em] text-neutral-500">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#888888]">
           Treatment Cost
         </p>
-        <p className="mt-1 text-base text-neutral-950">
+        <p className="mt-1 text-[15px] font-normal text-[#111111]">
           {formatText(damages.treatment_cost)}
         </p>
       </div>

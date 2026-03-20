@@ -51,6 +51,7 @@ class Client(models.Model):
     email = models.EmailField(null=True, blank=True)
     phone = models.CharField(max_length=50, null=True, blank=True)
     liable = models.BooleanField(null=True, blank=True)
+    liable_reason = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return self.name or self.email or f"Client {self.pk}"

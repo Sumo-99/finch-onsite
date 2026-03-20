@@ -69,24 +69,24 @@ function CaseReportPage() {
   }, [])
 
   if (isLoading) {
-    return <div className="min-h-screen bg-white px-6 py-10 text-black">Loading...</div>
+    return <div className="min-h-screen bg-[#f2eee8] px-6 py-12 text-[#1f2933]">Loading...</div>
   }
 
   if (hasError || caseReport === null) {
     return (
-      <div className="min-h-screen bg-white px-6 py-10 text-black">
+      <div className="min-h-screen bg-[#f2eee8] px-6 py-12 text-[#1f2933]">
         Error loading case.
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-white text-black">
-      <header className="w-full px-6 py-4 text-lg font-semibold tracking-[0.18em] text-black">
+    <div className="min-h-screen bg-[#f2eee8] text-[#1f2933]">
+      <header className="w-full border-b border-[#d8d0c4] bg-[#fcfbf8] px-4 py-5 text-lg font-semibold text-[#1f2933]">
         Finch Legal
       </header>
 
-      <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 pb-10">
+      <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-6 pb-12">
         <RecommendationBanner recommendation={caseReport.case.recommendation} />
         <CaseHeader client={caseReport.client} caseData={caseReport.case} />
         <TabShell

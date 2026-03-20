@@ -28,17 +28,23 @@ function LiabilityTab({ client }: LiabilityTabProps) {
   return (
     <section className="space-y-4">
       <div>
-        <p className="text-xs font-medium uppercase tracking-[0.24em] text-neutral-500">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#888888]">
           Liable
         </p>
-        <p className="mt-1 text-base text-neutral-950">
+        <p className="mt-1 text-[15px] font-normal text-[#111111]">
           {formatLiable(client.liable)}
         </p>
       </div>
 
-      <p className="text-base leading-7 text-neutral-700">
+      <p className="text-[15px] leading-[1.6] text-[#111111]">
         {getLiabilityNote(client.liable)}
       </p>
+
+      {client.liable_reason !== null ? (
+        <p className="text-[15px] leading-[1.6] text-[#111111]">
+          {client.liable_reason}
+        </p>
+      ) : null}
     </section>
   )
 }

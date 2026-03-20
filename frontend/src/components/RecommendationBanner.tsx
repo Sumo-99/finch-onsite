@@ -32,10 +32,10 @@ function RecommendationBanner({ recommendation }: RecommendationBannerProps) {
 
   return (
     <div
-      className="flex w-full items-center justify-center px-6 py-4 text-center font-black uppercase tracking-[0.25em] text-white"
+      className="flex h-12 w-full items-center justify-center rounded border border-white/30 px-6 text-center text-[14px] font-bold uppercase tracking-[0.1em] text-white shadow-[0_8px_20px_rgba(0,0,0,0.08)]"
       style={{ backgroundColor }}
     >
-      <span className="text-2xl sm:text-3xl">{label}</span>
+      <span>{label}</span>
     </div>
   )
 }

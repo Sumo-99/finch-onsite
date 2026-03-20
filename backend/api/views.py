@@ -110,6 +110,7 @@ def _create_client_record(structured_output):
         email=client_data.get("email"),
         phone=client_data.get("phone"),
         liable=client_data.get("liable"),
+        liable_reason=client_data.get("liable_reason"),
     )
 
 

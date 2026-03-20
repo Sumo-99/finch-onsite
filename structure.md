@@ -18,7 +18,7 @@ This document tracks the committed repository layout and the role of each tracke
 
 ### `backend/scripts/`
 
-- `backend/scripts/analysis.py` — Standalone intake extraction module with a callable API and CLI entrypoint for reading a transcript payload JSON file, calling OpenAI for structured extraction, and coercing the result into a stable legal-intake schema.
+- `backend/scripts/analysis.py` — Standalone intake extraction module with a callable API and CLI entrypoint for reading a transcript payload JSON file, calling OpenAI for structured extraction, and coercing the result into a stable legal-intake schema including client liability reasoning.
 - `backend/scripts/analysis_v2.py` — Batch JSONL CLI wrapper that runs intake extraction for each call record and writes one JSON output file per call into a target output directory.
 - `backend/scripts/intake-extraction-plan.md` — Implementation plan for transcript normalization, extraction, schema enforcement, and verification.
 
@@ -28,15 +28,16 @@ This document tracks the committed repository layout and the role of each tracke
 - `backend/api/admin.py` — Django admin registrations for the custom auth user and case-domain models.
 - `backend/api/authentication.py` — DRF authentication class that accepts `Bearer` tokens backed by DRF authtoken records.
 - `backend/api/apps.py` — Django app configuration.
-- `backend/api/models.py` — Custom auth user plus client, case, damages, and coverage schema definitions.
-- `backend/api/serializers.py` — DRF serializers for nested case report responses and auth token request validation.
-- `backend/api/tests.py` — Django and DRF tests covering model behavior, token issuance, authenticated case-report retrieval, and the intake extraction upload API contract including persistence and rollback.
+- `backend/api/models.py` — Custom auth user plus client, case, damages, and coverage schema definitions, including client liability reason text.
+- `backend/api/serializers.py` — DRF serializers for nested case report responses and auth token request validation, including client liability reason in case report payloads.
+- `backend/api/tests.py` — Django and DRF tests covering model behavior, token issuance, authenticated case-report retrieval, and the intake extraction upload API contract including liability-reason persistence and rollback.
 - `backend/api/urls.py` — API route declarations, including auth token issuance and case report endpoints.
 - `backend/api/views.py` — API view handlers for auth token issuance, health checks, authenticated case report retrieval, and multipart JSON upload processing that delegates transcript extraction to the analysis module and persists extracted data into case-related models.
 
 ### `backend/api/migrations/`
 
 - `backend/api/migrations/0001_initial.py` — Initial database schema for the custom user and case-related tables.
+- `backend/api/migrations/0002_client_liable_reason.py` — Adds the nullable `liable_reason` text column to clients without backfilling existing rows.
 - `backend/api/migrations/__init__.py` — Django migration package marker.
 
 ### `backend/config/`
@@ -77,7 +78,7 @@ This document tracks the committed repository layout and the role of each tracke
 
 ### `frontend/src/api/`
 
-- `frontend/src/api/case.ts` — Typed axios API helper and `CaseReport` contract for authenticated case-report retrieval.
+- `frontend/src/api/case.ts` — Typed axios API helper and `CaseReport` contract for authenticated case-report retrieval, including client liability reason text.
 
 ### `frontend/src/components/`
 
@@ -89,7 +90,7 @@ This document tracks the committed repository layout and the role of each tracke
 
 - `frontend/src/components/tabs/CoverageTab.tsx` — Coverage detail panel with null-state fallback messaging.
 - `frontend/src/components/tabs/DamagesTab.tsx` — Damages detail panel listing treatment-related fields.
-- `frontend/src/components/tabs/LiabilityTab.tsx` — Liability detail panel showing liable status and the corresponding note.
+- `frontend/src/components/tabs/LiabilityTab.tsx` — Liability detail panel showing liable status, the corresponding note, and transcript-grounded liability reasoning when present.
 
 ### `frontend/src/pages/`
 
