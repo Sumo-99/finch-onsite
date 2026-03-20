@@ -11,5 +11,9 @@
 [mcp_servers.context7]
 command = "npx"
 args = ["-y", "@upstash/context7-mcp"]
-# env = { CONTEXT7_API_KEY = "your_context7_api_key" }
-startup_timeout_sec = 60
+env = { CONTEXT7_API_KEY = "ctx7sk-c5f047d2-6367-43f3-83f8-0a61e9fb0cae"}
+
+# NOTE: This URL contains an API key query param. Consider using a non-committed
+# local config (or environment-variable based setup) if this repo is shared.
+[mcp_servers.tavily]
+url = "https://mcp.tavily.com/mcp/?tavilyApiKey=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"
