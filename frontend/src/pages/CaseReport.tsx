@@ -7,6 +7,34 @@ import TabShell from '../components/TabShell'
 
 const CASE_ID = 3
 
+function getCaseIdFromUrl() {
+  const searchParams = new URLSearchParams(window.location.search)
+  const queryCaseId = searchParams.get('caseId')
+
+  if (queryCaseId !== null) {
+    const parsedQueryCaseId = Number.parseInt(queryCaseId, 10)
+
+    if (Number.isInteger(parsedQueryCaseId) && parsedQueryCaseId > 0) {
+      return parsedQueryCaseId
+    }
+  }
+
+  const pathSegments = window.location.pathname
+    .split('/')
+    .filter(Boolean)
+    .reverse()
+
+  for (const segment of pathSegments) {
+    const parsedSegmentCaseId = Number.parseInt(segment, 10)
+
+    if (Number.isInteger(parsedSegmentCaseId) && parsedSegmentCaseId > 0) {
+      return parsedSegmentCaseId
+    }
+  }
+
+  return CASE_ID
+}
+
 function CaseReportPage() {
   const [caseReport, setCaseReport] = useState<CaseReport | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -17,7 +45,7 @@ function CaseReportPage() {
 
     const loadCaseReport = async () => {
       try {
-        const report = await fetchCaseReport(CASE_ID)
+        const report = await fetchCaseReport(getCaseIdFromUrl())
 
         if (!ignore) {
           setCaseReport(report)
