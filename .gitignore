@@ -8,3 +8,4 @@ dist/
 *.egg-info/
 db.sqlite3
 .vite/
+.codex/config.toml
