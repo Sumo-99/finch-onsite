@@ -85,6 +85,7 @@ class Case(models.Model):
         null=True,
         blank=True,
     )
+    recommendation_reason = models.TextField(null=True, blank=True)
     voice_note_url = models.URLField(null=True, blank=True)
     status = models.CharField(
         max_length=10,

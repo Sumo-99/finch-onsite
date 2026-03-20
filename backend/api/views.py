@@ -131,6 +131,7 @@ def _create_case_record(user, client, structured_output):
         incident_type=incident_data.get("type"),
         incident_summary=incident_data.get("summary"),
         recommendation=recommendation,
+        recommendation_reason=recommendation_data.get("reason"),
     )
 
 
@@ -160,6 +161,26 @@ def _create_coverage_record(case, structured_output):
         deductible=_parse_decimal(coverage_data.get("deductible")),
         insurer_name=coverage_data.get("insurer_name"),
     )
+
+
+def _serialize_coverage_for_case_report(coverage):
+    if coverage is None:
+        return None
+
+    insurer_inferred = bool(
+        coverage.insurer_name
+        and coverage.type is None
+        and coverage.policy_limit is None
+        and coverage.deductible is None
+    )
+
+    return {
+        "type": coverage.type,
+        "insurer_name": coverage.insurer_name,
+        "insurer_inferred": insurer_inferred,
+        "policy_limit": coverage.policy_limit,
+        "deductible": coverage.deductible,
+    }
 
 
 def _persist_extracted_intake(user, structured_output):
@@ -203,7 +224,11 @@ class CaseReportView(APIView):
             "case": CaseReportCaseSerializer(case).data,
             "client": CaseReportClientSerializer(case.client).data,
             "damages": CaseReportDamagesSerializer(damages).data if damages else None,
-            "coverage": CaseReportCoverageSerializer(coverage).data if coverage else None,
+            "coverage": CaseReportCoverageSerializer(
+                _serialize_coverage_for_case_report(coverage)
+            ).data
+            if coverage
+            else None,
         }
         serializer = CaseReportSerializer(payload)
 

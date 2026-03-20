@@ -11,7 +11,7 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
-from scripts.analysis import LEGAL_INTAKE_PROMPT
+from scripts.analysis import LEGAL_INTAKE_PROMPT, _normalize_structured_output
 
 
 class CaseDataModelTests(TestCase):
@@ -145,6 +145,59 @@ class LegalIntakePromptTests(TestCase):
         self.assertIn("Always apply REJECT before ACCEPT.", LEGAL_INTAKE_PROMPT)
         self.assertIn("If both conditions appear to be met, prefer REJECT.", LEGAL_INTAKE_PROMPT)
         self.assertIn("When in doubt, use REVIEW over ACCEPT.", LEGAL_INTAKE_PROMPT)
+
+    def test_prompt_includes_explicit_coverage_insurer_inference_rules(self):
+        self.assertIn('"insurer_inferred": boolean', LEGAL_INTAKE_PROMPT)
+        self.assertIn("Set insurer_name only when the caller explicitly states the name", LEGAL_INTAKE_PROMPT)
+        self.assertIn("Set insurer_inferred to true if insurer_name was implied", LEGAL_INTAKE_PROMPT)
+        self.assertIn("Set insurer_inferred to false if insurer_name was explicitly stated by the caller.", LEGAL_INTAKE_PROMPT)
+        self.assertIn("Set insurer_inferred to false if insurer_name is null.", LEGAL_INTAKE_PROMPT)
+
+
+class IntakeNormalizationTests(TestCase):
+    def test_normalize_structured_output_defaults_insurer_inferred_to_false(self):
+        normalized = _normalize_structured_output(
+            {
+                "coverage": {
+                    "type": None,
+                    "policy_limit": None,
+                    "deductible": None,
+                    "insurer_name": None,
+                }
+            }
+        )
+
+        self.assertFalse(normalized["coverage"]["insurer_inferred"])
+
+    def test_normalize_structured_output_preserves_true_insurer_inferred(self):
+        normalized = _normalize_structured_output(
+            {
+                "coverage": {
+                    "type": None,
+                    "policy_limit": None,
+                    "deductible": None,
+                    "insurer_name": "Potential carrier",
+                    "insurer_inferred": True,
+                }
+            }
+        )
+
+        self.assertTrue(normalized["coverage"]["insurer_inferred"])
+
+    def test_normalize_structured_output_forces_false_insurer_inferred_when_name_is_null(self):
+        normalized = _normalize_structured_output(
+            {
+                "coverage": {
+                    "type": None,
+                    "policy_limit": None,
+                    "deductible": None,
+                    "insurer_name": None,
+                    "insurer_inferred": True,
+                }
+            }
+        )
+
+        self.assertFalse(normalized["coverage"]["insurer_inferred"])
 
 
 class IntakeExtractionApiTests(APITestCase):
@@ -452,6 +505,7 @@ class CaseReportApiTests(APITestCase):
             liable=False,
             liable_reason=case_overrides.pop("liable_reason", "The other driver ran the red light."),
         )
+        reason = case_overrides.pop("recommendation_reason", "Needs further review.")
         case = case_model.objects.create(
             user=user,
             client=client,
@@ -459,6 +513,7 @@ class CaseReportApiTests(APITestCase):
             incident_type="Auto accident",
             incident_summary="Rear-end collision.",
             recommendation=case_model.Recommendation.REVIEW,
+            recommendation_reason=reason,
             **case_overrides,
         )
         return case
@@ -498,6 +553,7 @@ class CaseReportApiTests(APITestCase):
                     "incident_summary": "Rear-end collision.",
                     "recommendation": "REVIEW",
                     "created_at": case.created_at.isoformat().replace("+00:00", "Z"),
+                    "recommendation_reason": "Needs further review.",
                 },
                 "client": {
                     "name": "Jane Doe",
@@ -516,6 +572,7 @@ class CaseReportApiTests(APITestCase):
                 "coverage": {
                     "type": "THIRD_PARTY",
                     "insurer_name": "Carrier A",
+                    "insurer_inferred": False,
                     "policy_limit": "50000.00",
                     "deductible": "1000.00",
                 },
@@ -524,12 +581,13 @@ class CaseReportApiTests(APITestCase):
 
     def test_get_returns_null_blocks_when_related_records_are_missing(self):
         user = self.create_user("owner@example.com")
-        case = self.create_case(user, liable_reason=None)
+        case = self.create_case(user, liable_reason=None, recommendation_reason=None)
 
         self.client.force_authenticate(user=user)
         response = self.client.get(f"/api/cases/{case.id}/report/")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsNone(response.json()["case"]["recommendation_reason"])
         self.assertIsNone(response.json()["client"]["liable_reason"])
         self.assertIsNone(response.json()["damages"])
         self.assertIsNone(response.json()["coverage"])
@@ -575,6 +633,32 @@ class CaseReportApiTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()["damages"]["description"], first_damages.description)
         self.assertEqual(response.json()["coverage"]["insurer_name"], first_coverage.insurer_name)
+        self.assertFalse(response.json()["coverage"]["insurer_inferred"])
+
+    def test_get_marks_sparse_persisted_coverage_as_inferred_for_demo_display(self):
+        coverage_model = self.get_model("Coverage")
+
+        user = self.create_user("owner@example.com")
+        case = self.create_case(user)
+        coverage_model.objects.create(
+            case=case,
+            insurer_name="Carrier A",
+        )
+
+        self.client.force_authenticate(user=user)
+        response = self.client.get(f"/api/cases/{case.id}/report/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.json()["coverage"],
+            {
+                "type": None,
+                "insurer_name": "Carrier A",
+                "insurer_inferred": True,
+                "policy_limit": None,
+                "deductible": None,
+            },
+        )
 
     def test_get_accepts_bearer_token_authentication(self):
         user = self.create_user("owner@example.com")

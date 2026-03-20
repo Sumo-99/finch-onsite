@@ -28,8 +28,8 @@ This document tracks the committed repository layout and the role of each tracke
 - `backend/api/admin.py` — Django admin registrations for the custom auth user and case-domain models.
 - `backend/api/authentication.py` — DRF authentication class that accepts `Bearer` tokens backed by DRF authtoken records.
 - `backend/api/apps.py` — Django app configuration.
-- `backend/api/models.py` — Custom auth user plus client, case, damages, and coverage schema definitions, including client liability reason text.
-- `backend/api/serializers.py` — DRF serializers for nested case report responses and auth token request validation, including client liability reason in case report payloads.
+- `backend/api/models.py` — Custom auth user plus client, case, damages, and coverage schema definitions, including client liability reason text and case recommendation reasoning.
+- `backend/api/serializers.py` — DRF serializers for nested case report responses and auth token request validation, including client liability and recommendation reasoning in case report payloads.
 - `backend/api/tests.py` — Django and DRF tests covering model behavior, token issuance, authenticated case-report retrieval, and the intake extraction upload API contract including liability-reason persistence and rollback.
 - `backend/api/urls.py` — API route declarations, including auth token issuance and case report endpoints.
 - `backend/api/views.py` — API view handlers for auth token issuance, health checks, authenticated case report retrieval, and multipart JSON upload processing that delegates transcript extraction to the analysis module and persists extracted data into case-related models.
@@ -78,12 +78,12 @@ This document tracks the committed repository layout and the role of each tracke
 
 ### `frontend/src/api/`
 
-- `frontend/src/api/case.ts` — Typed axios API helper and `CaseReport` contract for authenticated case-report retrieval, including client liability reason text.
+- `frontend/src/api/case.ts` — Typed axios API helper and `CaseReport` contract for authenticated case-report retrieval, including client liability and recommendation reason text.
 
 ### `frontend/src/components/`
 
 - `frontend/src/components/CaseHeader.tsx` — Plain-text client metadata and incident summary header for the case report page.
-- `frontend/src/components/RecommendationBanner.tsx` — Full-width recommendation status banner with color mapped by recommendation outcome.
+- `frontend/src/components/RecommendationBanner.tsx` — Full-width recommendation status banner with color mapped by recommendation outcome and optional recommendation reasoning copy.
 - `frontend/src/components/TabShell.tsx` — Local tab-state shell that switches between damages, liability, and coverage sections.
 
 ### `frontend/src/components/tabs/`
@@ -94,7 +94,7 @@ This document tracks the committed repository layout and the role of each tracke
 
 ### `frontend/src/pages/`
 
-- `frontend/src/pages/CaseReport.tsx` — Fetching page component that loads case `1`, handles loading/error states, and assembles the report UI.
+- `frontend/src/pages/CaseReport.tsx` — Fetching page component that loads case `1`, handles loading/error states, and assembles the report UI, including passing recommendation reasoning into the banner.
 
 ### `frontend/src/assets/`
 

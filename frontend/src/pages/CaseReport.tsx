@@ -87,7 +87,10 @@ function CaseReportPage() {
       </header>
 
       <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-6 pb-12">
-        <RecommendationBanner recommendation={caseReport.case.recommendation} />
+        <RecommendationBanner
+          recommendation={caseReport.case.recommendation}
+          reason={caseReport.case.recommendation_reason}
+        />
         <CaseHeader client={caseReport.client} caseData={caseReport.case} />
         <TabShell
           client={caseReport.client}

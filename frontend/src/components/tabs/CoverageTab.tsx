@@ -17,6 +17,15 @@ function CoverageTab({ coverage }: CoverageTabProps) {
     )
   }
 
+  const insurerLabel = coverage.insurer_inferred
+    ? 'POTENTIAL INSURANCE PROVIDER'
+    : 'INSURER'
+  const showPendingVerificationNote =
+    coverage.insurer_inferred &&
+    coverage.policy_limit === null &&
+    coverage.deductible === null &&
+    coverage.type === null
+
   return (
     <section className="space-y-4">
       <div>
@@ -30,11 +39,16 @@ function CoverageTab({ coverage }: CoverageTabProps) {
 
       <div>
         <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#888888]">
-          Insurer Name
+          {insurerLabel}
         </p>
         <p className="mt-1 text-[15px] font-normal text-[#111111]">
           {formatText(coverage.insurer_name)}
         </p>
+        {showPendingVerificationNote ? (
+          <p className="mt-1 text-[12px] text-[#888888]">
+            Coverage details pending verification
+          </p>
+        ) : null}
       </div>
 
       <div>

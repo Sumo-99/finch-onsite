@@ -2,6 +2,7 @@ type Recommendation = 'ACCEPT' | 'REJECT' | 'REVIEW'
 
 type RecommendationBannerProps = {
   recommendation: Recommendation | null
+  reason: string | null
 }
 
 const recommendationStyles: Record<
@@ -26,7 +27,7 @@ const recommendationStyles: Record<
   },
 }
 
-function RecommendationBanner({ recommendation }: RecommendationBannerProps) {
+function RecommendationBanner({ recommendation, reason }: RecommendationBannerProps) {
   const state = recommendation ?? 'PENDING'
   const { backgroundColor, label } = recommendationStyles[state]
 
@@ -44,6 +45,11 @@ function RecommendationBanner({ recommendation }: RecommendationBannerProps) {
         </p>
       </div>
       <span className="text-[14px] font-bold uppercase tracking-[0.1em]">{label}</span>
+      {reason !== null ? (
+        <p className="mt-2 max-w-[600px] self-center text-center text-[14px] font-normal text-white/85">
+          {reason}
+        </p>
+      ) : null}
     </div>
   )
 }

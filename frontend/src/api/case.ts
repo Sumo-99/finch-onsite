@@ -7,6 +7,7 @@ export type CaseReport = {
     incident_type: string | null
     incident_summary: string | null
     recommendation: 'ACCEPT' | 'REJECT' | 'REVIEW' | null
+    recommendation_reason: string | null
     created_at: string
   }
   client: {
@@ -27,6 +28,7 @@ export type CaseReport = {
     | {
         type: string | null
         insurer_name: string | null
+        insurer_inferred: boolean
         policy_limit: string | null
         deductible: string | null
       }

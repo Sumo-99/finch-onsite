@@ -52,7 +52,8 @@ Review the provided intake transcript and return only JSON that matches this sha
     "type": string | null,
     "policy_limit": string | null,
     "deductible": string | null,
-    "insurer_name": string | null
+    "insurer_name": string | null,
+    "insurer_inferred": boolean
   },
   "recommendation": {
     "decision": "ACCEPT" | "REJECT" | "REVIEW",
@@ -63,6 +64,10 @@ Review the provided intake transcript and return only JSON that matches this sha
 Extraction rules:
 - Use null when the transcript does not support a field.
 - Use false only for damages.treatment_received when treatment is not stated or is unclear.
+- Set insurer_name only when the caller explicitly states the name of an insurance company (e.g. "my insurance is Progressive", "Allstate is his carrier"). Do not set it from vague references like "my health insurance" or "marketplace coverage" — those are not named insurers.
+- Set insurer_inferred to true if insurer_name was implied, described generically, or inferred from context rather than explicitly named.
+- Set insurer_inferred to false if insurer_name was explicitly stated by the caller.
+- Set insurer_inferred to false if insurer_name is null.
 - Use these rules in order to determine recommendation.decision:
   ACCEPT if all three of the following are true:
     - liable is false (another party clearly caused the harm)
@@ -126,6 +131,7 @@ class CoverageExtraction(BaseModel):
     policy_limit: str | None = None
     deductible: str | None = None
     insurer_name: str | None = None
+    insurer_inferred: bool = False
 
 
 class RecommendationExtraction(BaseModel):
@@ -288,6 +294,13 @@ def _normalize_structured_output(raw_output: Any) -> dict[str, Any]:
     damages = output.get("damages") if isinstance(output.get("damages"), dict) else {}
     coverage = output.get("coverage") if isinstance(output.get("coverage"), dict) else {}
     recommendation = output.get("recommendation") if isinstance(output.get("recommendation"), dict) else {}
+    normalized_insurer_name = _normalize_string(coverage.get("insurer_name"))
+    normalized_insurer_inferred = _normalize_boolean(
+        coverage.get("insurer_inferred"),
+        default=False,
+    )
+    if normalized_insurer_name is None:
+        normalized_insurer_inferred = False
 
     return {
         "client": {
@@ -315,7 +328,8 @@ def _normalize_structured_output(raw_output: Any) -> dict[str, Any]:
             "type": _normalize_string(coverage.get("type")),
             "policy_limit": _normalize_numeric_string(coverage.get("policy_limit")),
             "deductible": _normalize_numeric_string(coverage.get("deductible")),
-            "insurer_name": _normalize_string(coverage.get("insurer_name")),
+            "insurer_name": normalized_insurer_name,
+            "insurer_inferred": normalized_insurer_inferred,
         },
         "recommendation": {
             "decision": _normalize_recommendation_decision(recommendation.get("decision")),

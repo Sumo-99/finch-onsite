@@ -9,3 +9,4 @@ dist/
 db.sqlite3
 .vite/
 .codex/config.toml
+scripts/extraction_outputs

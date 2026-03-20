@@ -76,6 +76,17 @@ function CaseHeader({ client, caseData }: CaseHeaderProps) {
               {formatLiable(client.liable)}
             </p>
           </div>
+
+          {client.liable_reason !== null ? (
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#888888]">
+                Liability Justification
+              </p>
+              <p className="mt-1 text-[15px] leading-[1.6] text-[#111111]">
+                {client.liable_reason}
+              </p>
+            </div>
+          ) : null}
         </section>
 
         <section className="space-y-3 md:border-l md:border-[#e5ddd2] md:pl-6">

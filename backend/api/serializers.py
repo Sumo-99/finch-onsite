@@ -7,6 +7,7 @@ class CaseReportCaseSerializer(serializers.Serializer):
     incident_type = serializers.CharField(allow_null=True)
     incident_summary = serializers.CharField(allow_null=True)
     recommendation = serializers.CharField(allow_null=True)
+    recommendation_reason = serializers.CharField(allow_null=True)
     created_at = serializers.DateTimeField()
 
 
@@ -33,6 +34,7 @@ class CaseReportDamagesSerializer(serializers.Serializer):
 class CaseReportCoverageSerializer(serializers.Serializer):
     type = serializers.CharField(allow_null=True)
     insurer_name = serializers.CharField(allow_null=True)
+    insurer_inferred = serializers.BooleanField(default=False)
     policy_limit = serializers.DecimalField(
         max_digits=12,
         decimal_places=2,
