@@ -63,7 +63,21 @@ Review the provided intake transcript and return only JSON that matches this sha
 Extraction rules:
 - Use null when the transcript does not support a field.
 - Use false only for damages.treatment_received when treatment is not stated or is unclear.
-- Keep recommendation.decision conservative. Use REVIEW when the transcript is incomplete or ambiguous.
+- Use these rules in order to determine recommendation.decision:
+  ACCEPT if all three of the following are true:
+    - liable is false (another party clearly caused the harm)
+    - damages.treatment_received is true
+    - damages.treatment_cost is non-null OR damages.description contains credible injury detail
+  REJECT if any of the following are true:
+    - liable is true (the client caused or contributed to the incident)
+    - damages.treatment_received is false and description is null
+    - there is a clear disqualifying factor stated in the transcript (e.g. client explicitly does not want to pursue, statute of limitations has clearly passed, no actionable harm described)
+  REVIEW in all other cases, including:
+    - liable is null
+    - liability is ambiguous or contested
+    - treatment was received but coverage and cost are both null
+    - key information is missing that prevents a confident determination
+  Always apply REJECT before ACCEPT. If both conditions appear to be met, prefer REJECT. When in doubt, use REVIEW over ACCEPT.
 - liable_reason must cite specific facts from the transcript to justify the liable determination. Do not write generic statements like 'another party was at fault'. Reference concrete evidence from the call. Example: 'The City of Denver is responsible for maintaining the sidewalk where the incident occurred. The city placed cones three days after the incident, indicating prior awareness of the hazard.'
 - Do not invent specific facts.
 - Return JSON only. No markdown, no prose, no code fences.

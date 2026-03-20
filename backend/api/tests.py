@@ -11,6 +11,8 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
+from scripts.analysis import LEGAL_INTAKE_PROMPT
+
 
 class CaseDataModelTests(TestCase):
     def get_model(self, model_name):
@@ -135,6 +137,14 @@ class CaseDataModelTests(TestCase):
 
         self.assertEqual(damages_model.objects.count(), 0)
         self.assertEqual(coverage_model.objects.count(), 0)
+
+
+class LegalIntakePromptTests(TestCase):
+    def test_prompt_includes_explicit_recommendation_decision_rules(self):
+        self.assertIn("Use these rules in order to determine recommendation.decision:", LEGAL_INTAKE_PROMPT)
+        self.assertIn("Always apply REJECT before ACCEPT.", LEGAL_INTAKE_PROMPT)
+        self.assertIn("If both conditions appear to be met, prefer REJECT.", LEGAL_INTAKE_PROMPT)
+        self.assertIn("When in doubt, use REVIEW over ACCEPT.", LEGAL_INTAKE_PROMPT)
 
 
 class IntakeExtractionApiTests(APITestCase):
